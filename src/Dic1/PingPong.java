@@ -20,7 +20,7 @@ public class PingPong {
         }
 
 
-        if(jugada.puntuaciongabi == 5){
+        if(jugada.puntuaciongabi == 15){
             System.out.println("Acaba de ganar gabi con 15 de puntuacion");
         }
         else{
@@ -134,7 +134,7 @@ class SimulaJugada{
 
 
     public boolean finPartida(Jugador j){
-        if(puntuaciongabi == 5 || puntuacionsanti == 5){
+        if(puntuaciongabi == 15 || puntuacionsanti == 15){
             return true;
         }else{
             return false;
