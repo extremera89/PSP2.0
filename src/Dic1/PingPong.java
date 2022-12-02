@@ -20,12 +20,7 @@ public class PingPong {
         }
 
 
-        if(jugada.puntuaciongabi == 15){
-            System.out.println("Acaba de ganar gabi con 15 de puntuacion");
-        }
-        else{
-            System.out.println("Acaba de ganar santi con 15 de puntuacion");
-        }
+        System.out.println("Se acabó la partida con las siguientes puntuaciones: => Santi: "+jugada.puntuacionsanti+" /// Gabi: "+jugada.puntuaciongabi );
 
     }
 
@@ -46,55 +41,59 @@ class Jugador extends Thread{
     }
 
 
+    synchronized public String getNombre() {
+        return nombre;
+    }
+
+
     @Override
     public void run() {
 
-        while(true) {
+        while(!jugada.finPartida()) {
+
             if (this.nombre.equals("Santi")) {
                 synchronized (jugada) {
-                    if (!jugada.finPartida(this)) {
-                        simulaQuienGanaElPunto();
+
+                    while(!jugada.saberTurno(this)) {
                         try {
-                            Thread.sleep(300);
+                            jugada.wait();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                            return;
                         }
                     }
-                    else{
-                        jugada.notify();
+                    if(jugada.finPartida()) {
                         return;
                     }
-
+                    System.out.println("La jugada la ejecuta => " +this.getNombre());
+                    simulaQuienGanaElPunto();
                     jugada.notify();
-                    try {
-                        jugada.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+
+
                 }
+
             }
+
 
             else {
                 synchronized (jugada) {
-                    if (!jugada.finPartida(this)) {
-                        simulaQuienGanaElPunto();
+
+                    while(!jugada.saberTurno(this)) {
                         try {
-                            Thread.sleep(300);
+                            jugada.wait();
                         } catch (InterruptedException e) {
                             e.printStackTrace();
+                            return;
                         }
                     }
-                    else{
-                        jugada.notify();
+                    if(jugada.finPartida()) {
                         return;
                     }
-
+                    System.out.println("La jugada la ejecuta => " +this.getNombre());
+                    simulaQuienGanaElPunto();
                     jugada.notify();
-                    try {
-                        jugada.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+
+
                 }
             }
         }
@@ -109,14 +108,16 @@ class Jugador extends Thread{
             jugada.puntuacionsanti++;
             System.out.println("# SANTI Acaba de puntuar");
         }else{
+            jugada.puntuaciongabi++;
             System.out.println("+ GABI Acaba de puntuar");
         }
-
 
         jugada.turno++;
         System.out.println("///Turno "+jugada.turno);
 
     }
+
+
 }
 
 class SimulaJugada{
@@ -133,11 +134,20 @@ class SimulaJugada{
 
 
 
-    public boolean finPartida(Jugador j){
+    public boolean finPartida(){
         if(puntuaciongabi == 15 || puntuacionsanti == 15){
             return true;
         }else{
             return false;
+        }
+    }
+
+    public boolean saberTurno(Jugador j){
+        if(j.getNombre().equals("Santi")){
+            return turno%2==0;
+        }
+        else{
+            return turno%2==1;
         }
     }
 
